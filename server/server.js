@@ -1,12 +1,13 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
-const User = require('./models/UserSchema')
 
-mongoose.connect("mongodb://127.0.0.1/novelX")
+const User = require('./models/UserSchema')//importing model for users
+
+mongoose.connect("mongodb://127.0.0.1/novelX")//connecting to database novelX
 
 const cors = require('cors')
-//////
+
 const passport = require('passport')
 const session  = require('express-session')
 const LocalStrategy = require('passport-local')
@@ -28,7 +29,7 @@ app.use(passport.session())//basically tries reading a user out of a session if 
 
 passport.use(new LocalStrategy((username,password,done)=>{//this is basically called whenever passport.authenticate is called
 	console.log(`Username from client is ${username} and password is ${password}` )
-	User.findOne({username: username})
+	User.findOne({username: username})//trying to find username in database, P.S findOne returns a promise
 		.then((user)=>{
 			console.log(`${user} found`)
 			if(user!== null){
@@ -54,10 +55,17 @@ passport.deserializeUser((user,done)=>{
 
 // app.get("/",passport)
 
-app.post('/auth',passport.authenticate('local',{failureMessage:true}),(req,res)=>{	
+app.post('/login',passport.authenticate('local',{failureMessage:true}),(req,res)=>{	
 	// console.log("Sending req.user back to server as user key")
 	// console.log(req.session.passport)
 	res.json({user:req.user})
+})
+
+app.post('/signup',(req,res)=>{
+	console.log(req.body)
+	const user = new User(req.body)
+	user.save()
+	res.json({status:200})
 })
 
 app.get("/user",(req,res)=>{
