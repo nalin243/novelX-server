@@ -1,5 +1,9 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+const User = require('./models/UserSchema')
+
+mongoose.connect("mongodb://127.0.0.1/novelX")
 
 const cors = require('cors')
 //////
@@ -23,10 +27,19 @@ app.use(passport.initialize())
 app.use(passport.session())//basically tries reading a user out of a session if it's there it stores it in req.user if not it doesn't do shit
 
 passport.use(new LocalStrategy((username,password,done)=>{//this is basically called whenever passport.authenticate is called
-	if(username=="nalin247" && password=="root")
-		done(null,{id:1,name:"nalin"})
-	else
-		done(null,false,{message:"wrong info"})
+	console.log(`Username from client is ${username} and password is ${password}` )
+	User.findOne({username: username})
+		.then((user)=>{
+			console.log(`${user} found`)
+			if(user!== null){
+				if(user.password === password)
+					done(null,{id:1,name:username})
+				else 
+					done(null,false,{message:"wrong info"})
+			}
+			else 
+				done(null,false,{message:"wrong info"})
+		})
 }))
 
 passport.serializeUser((user,done)=>{
@@ -42,8 +55,8 @@ passport.deserializeUser((user,done)=>{
 // app.get("/",passport)
 
 app.post('/auth',passport.authenticate('local',{failureMessage:true}),(req,res)=>{	
-	console.log("Sending req.user back to server as user key")
-	console.log(req.session.passport)
+	// console.log("Sending req.user back to server as user key")
+	// console.log(req.session.passport)
 	res.json({user:req.user})
 })
 
@@ -63,7 +76,6 @@ app.get("/checkauth",(req,res)=>{
 })
 
 app.get("/signout",(req,res)=>{
-	console.log(req.session)
 	req.logout((err)=>{
 		if(err)
 			console.log(err)
