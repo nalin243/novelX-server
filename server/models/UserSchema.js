@@ -6,7 +6,8 @@ const BookSchema = new Schema({
 	Pages: Number,
 	Read: Boolean,
 	Author: String,
-	Description: String
+	Description: String,
+	Cover: String
 })
 
 const UserSchema = new Schema({

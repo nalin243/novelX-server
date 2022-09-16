@@ -7,14 +7,6 @@ const User = require('./models/UserSchema')//importing model for users
 
 mongoose.connect("mongodb://127.0.0.1/novelX")//connecting to database novelX
 
-// const user = new User({username:"nalin",password:"root"})
-// User.findOne({username:"nalin"})
-// 	.then((result)=>{
-// 		console.log(result)
-// 		result.Library.push({name:"pantomime cat"})
-// 		result.save()
-// 	})
-
 const cors = require('cors')
 
 const passport = require('passport')
@@ -40,7 +32,6 @@ passport.use(new LocalStrategy((username,password,done)=>{//this is basically ca
 	console.log(`Username from client is ${username} and password is ${password}` )
 	User.findOne({username: username})//trying to find username in database, P.S findOne returns a promise
 		.then((user)=>{
-			console.log(`${user} found`)
 			if(user!== null){
 				if(user.password === password)
 					done(null,{id:1,name:username})
@@ -98,6 +89,18 @@ app.post("/updatelibrary",(req,res)=>{
 			console.log(book)
 			user.Library.push(book)
 			user.save()
+		})
+})
+
+app.post("/getlibrary",(req,res)=>{
+	const {username} = req.body 
+	console.log(username)
+	User.findOne({username: username})
+		.then((user)=>{
+			res.json({Library: user.Library})
+		})
+		.catch((err)=>{
+			console.log(err)
 		})
 })
 
