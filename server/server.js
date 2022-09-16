@@ -4,7 +4,16 @@ const mongoose = require('mongoose')
 
 const User = require('./models/UserSchema')//importing model for users
 
+
 mongoose.connect("mongodb://127.0.0.1/novelX")//connecting to database novelX
+
+// const user = new User({username:"nalin",password:"root"})
+// User.findOne({username:"nalin"})
+// 	.then((result)=>{
+// 		console.log(result)
+// 		result.Library.push({name:"pantomime cat"})
+// 		result.save()
+// 	})
 
 const cors = require('cors')
 
@@ -53,8 +62,6 @@ passport.deserializeUser((user,done)=>{
 	done(null,user)
 })
 
-// app.get("/",passport)
-
 app.post('/login',passport.authenticate('local',{failureMessage:true}),(req,res)=>{	
 	// console.log("Sending req.user back to server as user key")
 	// console.log(req.session.passport)
@@ -81,6 +88,17 @@ app.get("/checkauth",(req,res)=>{
 	}
 	else
 		res.json({authenticated:false})
+})
+
+app.post("/updatelibrary",(req,res)=>{
+	const {username,book} = req.body
+	User.findOne({username: username})
+		.then((user)=>{
+			console.log(`Received from ${username}`)
+			console.log(book)
+			user.Library.push(book)
+			user.save()
+		})
 })
 
 app.get("/signout",(req,res)=>{
