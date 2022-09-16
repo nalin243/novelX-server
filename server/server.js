@@ -104,6 +104,20 @@ app.post("/getlibrary",(req,res)=>{
 		})
 })
 
+app.post("/deletebook",(req,res)=>{
+	const {username,bookname} = req.body 
+	User.findOne({username: username})
+		.then((user)=>{
+			user.Library.forEach((book)=>{
+				if(book.name == bookname){
+					console.log(book._id)
+					user.Library.pull(book._id)
+					user.save()
+				}
+			})
+		})
+})
+
 app.get("/signout",(req,res)=>{
 	req.logout((err)=>{
 		if(err)
