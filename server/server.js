@@ -104,6 +104,19 @@ app.post("/getlibrary",(req,res)=>{
 		})
 })
 
+app.post("/updatebook",(req,res)=>{
+	const {username,updatedBook} = req.body 
+	User.findOne({username: username})
+		.then((user)=>{
+			user.Library.forEach((book)=>{
+				if(book.name == updatedBook.name){
+					book.Read = updatedBook.Read 
+					user.save()
+				}
+			})
+		})
+})
+
 app.post("/deletebook",(req,res)=>{
 	const {username,bookname} = req.body 
 	User.findOne({username: username})
