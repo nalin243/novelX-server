@@ -2,6 +2,10 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
+if(process.env.NODE_ENV !== 'production'){
+	require('dotenv').config()
+}
+
 const User = require('./models/UserSchema')//importing model for users
 
 
@@ -139,6 +143,11 @@ app.get("/signout",(req,res)=>{
 	res.json({status:true})
 })
 
-app.listen(3001,"localhost",()=>{
-	console.log("Server is running on 3001")
+const PORT = process.env.PORT || 3001
+const HOST = process.env.HOST || "localhost"
+
+
+
+app.listen(PORT,HOST,()=>{
+	console.log(`Server starting on ${HOST} at ${PORT}`)
 })
