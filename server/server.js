@@ -2,6 +2,9 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
+const url = require('url')
+const querystring = require('querystring')
+
 if(process.env.NODE_ENV !== 'production'){
 	require('dotenv').config()
 }
@@ -85,30 +88,40 @@ app.get("/checkauth",(req,res)=>{
 		res.json({authenticated:false})
 })
 
-app.post("/updatelibrary",(req,res)=>{
+app.put("/updatelibrary",(req,res)=>{
 	const {username,book} = req.body
 	User.findOne({username: username})
 		.then((user)=>{
 			console.log(`Received from ${username}`)
 			console.log(book)
-			user.Library.push(book)
+			try{
+				user.Library.push(book)
+			}
+			catch(err){
+				console.log(err)
+			}
 			user.save()
 		})
 })
 
-app.post("/getlibrary",(req,res)=>{
-	const {username} = req.body 
-	console.log(username)
+app.get("/getlibrary",(req,res)=>{
+
+	const {username} = querystring.parse((url.parse(req.url)).query)
 	User.findOne({username: username})
 		.then((user)=>{
-			res.json({Library: user.Library})
+			try{
+				res.json({Library: user.Library})
+			}
+			catch(err){
+				res.json({Library: null})
+			}
 		})
 		.catch((err)=>{
 			console.log(err)
 		})
 })
 
-app.post("/updatebook",(req,res)=>{
+app.put("/updatebook",(req,res)=>{
 	const {username,updatedBook} = req.body 
 	User.findOne({username: username})
 		.then((user)=>{
@@ -121,8 +134,8 @@ app.post("/updatebook",(req,res)=>{
 		})
 })
 
-app.post("/deletebook",(req,res)=>{
-	const {username,bookname} = req.body 
+app.delete("/deletebook",(req,res)=>{
+	const {username,bookname} = querystring.parse((url.parse(req.url)).query)
 	User.findOne({username: username})
 		.then((user)=>{
 			user.Library.forEach((book)=>{
